@@ -26,8 +26,11 @@ const LoginScreen = () => {
 
   const onLoginPress = () => {
     console.log('Login with:', formData);
-    // Implémente ta logique de connexion ici
+    
+    router.push('/screens/HomeScreen');
+
   };
+  
 
   const onForgotPasswordPress = () => {
     router.push('/reset-password');

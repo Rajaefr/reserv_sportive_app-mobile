@@ -2,14 +2,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    ImageBackground,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  ImageBackground,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const ResetPasswordScreen = () => {
@@ -66,7 +66,7 @@ const ResetPasswordScreen = () => {
             {!codeSent ? (
               <>
                 <Text style={styles.label}>
-                  Entrez votre e-mail ou numéro de téléphone :
+                 E-mail/numéro de téléphone :
                 </Text>
                 <TextInput
                   style={styles.input}
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     padding: 34,
     marginHorizontal: 16,
   },
-  title: { color: 'white', fontSize: 18, fontWeight: '400', marginBottom: 24, textAlign: 'center' },
+  title: { color: 'white', fontSize: 18, fontWeight: '500', marginBottom: 34, textAlign: 'center' },
   label: { color: 'white', fontSize: 14, marginBottom: 10 },
   input: {
     backgroundColor: 'rgba(39, 45, 53, 0.66)',
