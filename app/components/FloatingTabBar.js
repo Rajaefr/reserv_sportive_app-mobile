@@ -14,14 +14,20 @@ const FloatingTabBar = () => {
   const pathname = usePathname();
 
   const handleTabPress = (tabName) => {
-    router.push(`/${tabName}`);
+    if (tabName === 'history') {
+      router.push('/screens/HistoryScreen'); 
+    } else if (tabName === 'home') {
+      router.push('/screens/HomeScreen');
+    } else if (tabName === 'settings') {
+      router.push('/settings');
+    }
   };
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.tabBar}>
         {tabs.map((tab) => {
-          const isActive = pathname.includes(`/${tab.name}`);
+          const isActive = pathname.includes(tab.name);
           const IconComponent = tab.icon === 'history' ? MaterialIcons : Ionicons;
 
           return (
@@ -59,7 +65,7 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(176, 193, 176, 0.49)',
+    backgroundColor: 'rgba(255, 255, 255, 0.19)',
     width: width * 0.9,
     borderRadius: 22,
     padding: 12,

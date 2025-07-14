@@ -67,7 +67,7 @@ export default function Home() {
         resizeMode="cover"
       >
         <LinearGradient
-          colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
+          colors={['rgba(34, 39, 34, 0.31)', 'rgba(147, 148, 150, 0.32)']}
           style={styles.gradient}
         >
           {/* Header */}
@@ -162,12 +162,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   statCard: {
-    backgroundColor: 'rgba(176, 193, 176, 0.49)',
+    backgroundColor: 'rgba(255, 255, 255, 0.19)',
     borderRadius: 10,
     padding: 10,
     flex: 0.48,
     alignItems: 'center',
-    elevation: 5,
+   
   },
   statNumber: {
     color: 'white',
