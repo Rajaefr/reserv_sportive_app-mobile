@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   background: { flex: 1 },
   gradient: { flex: 1, justifyContent: 'space-between' },
   header: {
-    marginTop: 80,
+    marginTop: 60,
     marginBottom: 40,
     paddingHorizontal: 20,
     flexDirection: 'row',

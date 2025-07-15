@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   gradient: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
  // header: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 20 },
  header: {
-  marginTop: 25,
+  marginTop: 10,
   marginBottom: 40,
   paddingHorizontal: 10,
   flexDirection: 'row',
@@ -116,7 +116,7 @@ badge: {
  title: { color: 'white', fontSize: 22, fontWeight: 'bold' },
   filterContainer: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 20 },
   filterButton: { paddingVertical: 4, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 10, margin: 4 },
-  activeFilterButton: { backgroundColor: '#1FA739' },
+  activeFilterButton: { backgroundColor: '#32CD32' },
   filterText: { color: 'white' },
   activeFilterText: { fontWeight: 'bold' },
   content: { paddingBottom: 140 },

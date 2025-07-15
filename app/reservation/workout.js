@@ -178,7 +178,7 @@ export default function ReservationPiscine() {
           ))}
         </View>
 
-        <Text style={[styles.label, { marginTop: 10 }]}>Montant estimé : <Text style={{ color: '#1FA739', fontWeight: 'bold' }}>{price} DH</Text></Text>
+        <Text style={[styles.label, { marginTop: 10 }]}>Montant estimé : <Text style={{ color: '#32CD32', fontWeight: 'bold' }}>{price} DH</Text></Text>
 
         <TouchableOpacity style={styles.button} onPress={pickDocument}>
           <Text style={styles.buttonText}>Importer un fichier</Text>
@@ -204,9 +204,15 @@ export default function ReservationPiscine() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#111827" />
-      <ImageBackground source={require('../../assets/images/background_app.jpg')} resizeMode="cover" style={styles.background}>
-        <LinearGradient colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']} style={styles.gradient}>
-        <View style={styles.header}>
+      <ImageBackground
+      source={require('../../assets/images/background_app.jpg')}
+      resizeMode="cover"
+      style={{ flex: 1 }}
+    >
+      <LinearGradient
+        colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
+        style={{ flex: 1 }}
+      ><View style={styles.header}>
   <TouchableOpacity onPress={router.back} style={styles.headerIcon}>
     <Ionicons name="arrow-back" size={26} color="white" />
   </TouchableOpacity>
@@ -248,12 +254,12 @@ const styles = StyleSheet.create({
   label: { color: 'white', fontSize: 15, marginBottom: 6 },
   input: { backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 10, color: 'white', padding: 10, marginBottom: 10 },
   option: { backgroundColor: 'rgba(255,255,255,0.1)', padding: 12, borderRadius: 10, marginVertical: 6 },
-  selectedOption: { backgroundColor: '#1FA739' },
+  selectedOption: { backgroundColor: '#32CD32' },
   optionText: { color: 'white', textAlign: 'center' },
   checkbox: { flexDirection: 'row', alignItems: 'center', marginVertical: 10 },
   icon: { marginTop: 30 },
-  button: { backgroundColor: '#1FA739', padding: 12, borderRadius: 10, alignItems: 'center', marginVertical: 10 },
-  secondaryButton: { backgroundColor: 'rgba(255,255,255,0.1)', padding: 12, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#1FA739', marginVertical: 5 },
+  button: { backgroundColor: '#32CD32', padding: 12, borderRadius: 10, alignItems: 'center', marginVertical: 10 },
+  secondaryButton: { backgroundColor: 'rgba(255,255,255,0.1)', padding: 12, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#32CD32', marginVertical: 5 },
   buttonText: { color: 'white', fontWeight: 'bold' },
   card: { backgroundColor: 'rgba(255,255,255,0.1)', padding: 16, borderRadius: 12, marginVertical: 10 },
   cardText: { color: 'white', fontSize: 16, textAlign: 'center', marginVertical: 4 },

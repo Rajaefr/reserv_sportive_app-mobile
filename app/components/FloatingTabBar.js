@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderWidth: 2,
     borderColor: '#999',
-
+   
   },
   tab: {
     alignItems: 'center',

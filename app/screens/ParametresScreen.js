@@ -132,7 +132,7 @@ export default function Parametres() {
 const styles = StyleSheet.create({
   safeContainer: { flex: 1 },
   header: {
-    marginTop: 30,
+    marginTop: 20,
     marginBottom: 40,
     paddingHorizontal: 20,
     flexDirection: 'row',
