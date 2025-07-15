@@ -14,7 +14,7 @@ const ProgressBar = ({ step }) => (
         <View
           style={[
             styles.progressStep,
-            { backgroundColor: stepNum <= step ? '#32CD32' : 'rgba(39, 45, 53, 0.76)' },
+            { backgroundColor: stepNum <= step ? '#32CD32' : 'rgba(66, 67, 66, 0.52)' },
           ]}
         />
       </View>
@@ -34,12 +34,24 @@ const StepOne = ({ formData, handleInputChange, nextStep, currentStep, onLoginPr
             <Text style={styles.label}>Nom Complet</Text>
             <TextInput
               style={styles.input}
-              placeholder="Mohamed Ali"
+              placeholder="Nom complet"
               placeholderTextColor="#9CA3AF"
               value={formData.fullName}
               onChangeText={(text) => handleInputChange('fullName', text)}
             />
           </View>
+          <View style={styles.inputGroup}>
+  <Text style={styles.label}>Numéro de Matricule</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="Ex: 123456"
+    placeholderTextColor="#9CA3AF"
+    value={formData.matricule}
+    onChangeText={(text) => handleInputChange('matricule', text)}
+    keyboardType="numeric"
+  />
+</View>
+
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email</Text>
@@ -86,18 +98,20 @@ export default StepOne;
 
 const styles = StyleSheet.create({
   flexOne: { flex: 1 },
-  container: { justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 72, marginTop: 130 },
+  container: { justifyContent: 'center', paddingVertical: 72, marginTop: 130 },
   card: {
-    backgroundColor: 'rgba(39, 45, 53, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.31)',
     borderRadius: 16,
-    padding: 34,
+    padding: 24,
     marginHorizontal: 16,
+    borderWidth: 2,
+    borderColor: '#999',
   },
   title: { color: 'white', fontSize: 20, fontWeight: 'bold', marginBottom: 24 },
   inputGroup: { marginBottom: 16 },
   label: { color: 'white', fontSize: 14, marginBottom: 10 },
   input: {
-    backgroundColor: 'rgba(39, 45, 53, 0.66)',
+    backgroundColor: 'rgba(66, 67, 66, 0.52)',
     color: 'white',
     padding: 10,
     borderRadius: 12,
@@ -111,12 +125,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   loginButton: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#32CD32',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(66, 67, 66, 0.52)',
   },
   buttonText: { color: 'white', fontSize: 16, fontWeight: '400' },
   progressContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 44 },
   progressStepContainer: { flex: 1, marginHorizontal: 5 },
-  progressStep: { height: 2, borderRadius: 9999 },
+  progressStep: { height: 4, borderRadius: 9999 },
 });

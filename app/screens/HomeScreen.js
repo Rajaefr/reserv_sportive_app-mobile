@@ -67,10 +67,10 @@ export default function Home() {
         resizeMode="cover"
       >
         <LinearGradient
-          colors={['rgba(34, 39, 34, 0.31)', 'rgba(147, 148, 150, 0.32)']}
+          colors={['rgba(34, 39, 34, 0.14)', 'rgba(147, 148, 150, 0.63)']}
           style={styles.gradient}
         >
-          {/* Header */}
+         
           <View style={styles.header}>
             <Text style={styles.userName}>{userFirstName}</Text>
             <View style={styles.notificationIcon}>
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userName: {
-    fontSize: 20,
+    fontSize: 22,
     color: 'white',
     fontWeight: 'bold',
   },
@@ -167,7 +167,8 @@ const styles = StyleSheet.create({
     padding: 10,
     flex: 0.48,
     alignItems: 'center',
-   
+    borderWidth: 2,
+    borderColor: '#999',
   },
   statNumber: {
     color: 'white',

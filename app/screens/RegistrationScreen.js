@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ImageBackground, StatusBar, StyleSheet, View } from 'react-native';
 
 import StepOne from '../components/StepOne';
-import StepThree from '../components/StepThree';
+import StepTwo from '../components/StepTwo';
 
 
 const RegistrationScreen = () => {
@@ -20,10 +20,7 @@ const RegistrationScreen = () => {
     fullName: '',
     email: '',
     phone: '',
-    numSpouses: 0,
-    spouses: [],
-    numChildren: 0,
-    children: [],
+    matricule: '',
     password: '',
     confirmPassword: '',
   });
@@ -72,7 +69,7 @@ const RegistrationScreen = () => {
         return <StepOne {...commonProps} onLoginPress={onLoginPress} />;
      
       case 2:
-        return <StepThree {...commonProps} handleSubmit={handleSubmit} />;
+        return <StepTwo {...commonProps} handleSubmit={handleSubmit} />;
       default:
         return <StepOne {...commonProps} onLoginPress={onLoginPress} />;
     }

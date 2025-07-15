@@ -1,2 +1,2 @@
-import RegistrationScreen from './screens/RegistrationScreen';
-export default RegistrationScreen;
+import SplashScreen from './screens/SplashScreen';
+export default SplashScreen;

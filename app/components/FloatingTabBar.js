@@ -15,11 +15,11 @@ const FloatingTabBar = () => {
 
   const handleTabPress = (tabName) => {
     if (tabName === 'history') {
-      router.push('/screens/HistoryScreen'); 
+      router.push('/screens/NotificationScreen'); 
     } else if (tabName === 'home') {
       router.push('/screens/HomeScreen');
     } else if (tabName === 'settings') {
-      router.push('/settings');
+      router.push('/screens/ParametresScreen');
     }
   };
 
@@ -40,7 +40,7 @@ const FloatingTabBar = () => {
               <IconComponent
                 name={tab.icon}
                 size={24}
-                color={isActive ? '#32CD32' : '#FFFFFF'}
+                color={isActive ? '#1FA739' : '#FFFFFF'}
               />
               {isActive && <View style={styles.activeIndicator} />}
             </TouchableOpacity>
@@ -75,6 +75,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 12,
     elevation: 10,
+    borderWidth: 2,
+    borderColor: '#999',
+
   },
   tab: {
     alignItems: 'center',
@@ -87,7 +90,7 @@ const styles = StyleSheet.create({
     bottom: -4,
     height: 3,
     width: 24,
-    backgroundColor: '#32CD32',
+    backgroundColor: '#1FA739',
     borderRadius: 2,
   },
 });

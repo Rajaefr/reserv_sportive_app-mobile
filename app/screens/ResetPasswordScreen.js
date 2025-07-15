@@ -45,7 +45,7 @@ const ResetPasswordScreen = () => {
     Alert.alert('Succès', 'Code confirmé, vous pouvez réinitialiser votre mot de passe.');
 
     // Redirige vers une page de définition du nouveau mot de passe ou retour à login
-    router.push('/login'); // ou router.push('/reset-password/new') si tu crées cette étape
+    router.push('/../screens/NewpasswordScreen');// ou router.push('/reset-password/new') si tu crées cette étape
   };
 
   return (
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   background: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   gradient: { flex: 1, justifyContent: 'center', width: '100%', paddingHorizontal: 16 },
   card: {
-    backgroundColor: 'rgba(39, 45, 53, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.31)',
     borderRadius: 16,
     padding: 34,
     marginHorizontal: 16,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   title: { color: 'white', fontSize: 18, fontWeight: '500', marginBottom: 34, textAlign: 'center' },
   label: { color: 'white', fontSize: 14, marginBottom: 10 },
   input: {
-    backgroundColor: 'rgba(39, 45, 53, 0.66)',
+    backgroundColor: 'rgba(66, 67, 66, 0.52)',
     color: 'white',
     padding: 10,
     borderRadius: 12,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: '#1FA739',
+    backgroundColor: '#32CD32',
     padding: 10,
     borderRadius: 12,
     alignItems: 'center',

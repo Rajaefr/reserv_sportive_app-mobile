@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   background: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   gradient: { flex: 1, justifyContent: 'center', width: '100%', paddingHorizontal: 16 },
   card: {
-    backgroundColor: 'rgba(39, 45, 53, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.31)',
     borderRadius: 16,
     padding: 34,
     marginHorizontal: 16,
@@ -115,14 +115,14 @@ const styles = StyleSheet.create({
   inputGroup: { marginBottom: 16 },
   label: { color: 'white', fontSize: 14, marginBottom: 10 },
   input: {
-    backgroundColor: 'rgba(39, 45, 53, 0.66)',
+    backgroundColor: 'rgba(66, 67, 66, 0.52)',
     color: 'white',
     padding: 10,
     borderRadius: 12,
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#1FA739',
+    backgroundColor: '#32CD32',
     padding: 10,
     borderRadius: 12,
     alignItems: 'center',
@@ -133,13 +133,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
+   
   },
   linkText: {
-    color: '#1FA739',
+    color: 'white',
     fontSize: 14,
     textDecorationLine: 'underline',
+     fontWeight:'300'
   },
   createAccount: {
-    fontWeight: '700',
+    fontWeight: '500',
   },
 });

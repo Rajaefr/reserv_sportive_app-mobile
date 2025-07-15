@@ -8,7 +8,7 @@ const ProgressBar = ({ step }) => (
         <View
           style={[
             styles.progressStep,
-            { backgroundColor: stepNum <= step ? '#32CD32' : 'rgba(39, 45, 53, 0.76)' },
+            { backgroundColor: stepNum <= step ? '#32CD32' : 'rgba(84, 84, 90, 0.49)' },
           ]}
         />
       </View>
@@ -16,7 +16,7 @@ const ProgressBar = ({ step }) => (
   </View>
 );
 
-const StepThree = ({ formData, handleInputChange, handleSubmit, currentStep, prevStep }) => {
+const StepTwo = ({ formData, handleInputChange, handleSubmit, currentStep, prevStep }) => {
   return (
     <View style={styles.flexOne}>
       <View style={styles.container}>
@@ -24,7 +24,7 @@ const StepThree = ({ formData, handleInputChange, handleSubmit, currentStep, pre
           <Text style={styles.title}>Étape 2 de 2</Text>
           <ProgressBar step={currentStep} />
 
-          <Text style={styles.title}>Définir le Mot de Passe</Text>
+        
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Mot de passe</Text>
@@ -65,17 +65,17 @@ const StepThree = ({ formData, handleInputChange, handleSubmit, currentStep, pre
   );
 };
 
-export default StepThree;
+export default StepTwo;
 
 const styles = StyleSheet.create({
   flexOne: { flex: 1 },
-  container: { justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 72, marginTop: 130 },
-  card: { backgroundColor: 'rgba(39, 45, 53, 0.5)', borderRadius: 16, padding: 34, marginHorizontal: 16 },
+  container: { justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 72, marginTop: 180 },
+  card: { backgroundColor: 'rgba(255, 255, 255, 0.31)', borderRadius: 16, padding: 34, marginHorizontal:16 },
   title: { color: 'white', fontSize: 20, fontWeight: 'bold', marginBottom: 24 },
   inputGroup: { marginBottom: 16 },
   label: { color: 'white', fontSize: 14, marginBottom: 8 },
   input: {
-    backgroundColor: 'rgba(39, 45, 53, 0.66)',
+    backgroundColor: 'rgba(66, 67, 66, 0.52)',
     color: 'white',
     padding: 10,
     borderRadius: 12,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     flex: 0.58,
   },
   secondaryButton: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(66, 67, 66, 0.52)',
     padding: 8,
     borderRadius: 12,
     alignItems: 'center',
@@ -105,5 +105,5 @@ const styles = StyleSheet.create({
   buttonText: { color: 'white', fontSize: 16, fontWeight: '400' },
   progressContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 44 },
   progressStepContainer: { flex: 1, marginHorizontal: 5 },
-  progressStep: { height: 2, borderRadius: 9999 },
+  progressStep: { height: 4, borderRadius: 9999 },
 });
