@@ -103,11 +103,10 @@ export default function ActivityDetail() {
 
   const handleReservation = () => {
   if (activityId === 'piscine') {
-    console.log("activityId:", activityId);
-
-    router.push('./reservation/piscine');
+    
+    router.push('/reservation/piscine');
   } else if (activityId === 'workout') {
-    router.push('./reservation/workout');
+    router.push('/reservation/workout');
   } else {
     alert(`La réservation n'est pas disponible pour ${activity.title}.`);
   }
@@ -239,7 +238,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    backgroundColor: '#32CD32',
+    backgroundColor: '#1FA739',
     padding: 12,
     borderRadius: 10,
     alignItems: 'center',

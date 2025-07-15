@@ -87,7 +87,7 @@ const RegistrationScreen = () => {
         style={styles.background}
       >
         <LinearGradient
-          colors={['rgba(34, 39, 34, 0.31)', 'rgba(147, 148, 150, 0.32)']}
+          colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
           style={styles.gradient}
         >
           {renderCurrentStep()}

@@ -3,13 +3,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    ImageBackground,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ImageBackground,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 // 👉 importe ta barre flottante
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     marginVertical: 10,
   },
-  activeFilterButton: { backgroundColor: '#32CD32' },
+  activeFilterButton: { backgroundColor: '#1FA739' },
   filterText: { color: 'white' },
   activeFilterText: { fontWeight: 'bold' },
   content: { paddingBottom: 150 },
@@ -139,6 +139,6 @@ const styles = StyleSheet.create({
   activity: { color: 'white', fontSize: 18, fontWeight: 'bold' },
   date: { color: '#ccc', fontSize: 14, marginTop: 4 },
   status: { fontSize: 14, marginTop: 6 },
-  valid: { color: '#32CD32' },
+  valid: { color: '#1FA739' },
   pending: { color: '#facc15' },
 });
