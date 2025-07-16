@@ -15,7 +15,7 @@ const FloatingTabBar = () => {
 
   const handleTabPress = (tabName) => {
     if (tabName === 'history') {
-      router.push('/screens/NotificationScreen'); 
+      router.push('/screens/HistoryScreen'); 
     } else if (tabName === 'home') {
       router.push('/screens/HomeScreen');
     } else if (tabName === 'settings') {

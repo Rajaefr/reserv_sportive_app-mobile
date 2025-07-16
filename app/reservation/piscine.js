@@ -268,21 +268,21 @@ export default function ReservationPiscine() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#111827" />
       <ImageBackground
-        source={require('../../assets/images/background_app.jpg')}
-        resizeMode="cover"
+      source={require('../../assets/images/background_app.jpg')}
+      resizeMode="cover"
+      style={{ flex: 1 }}
+    >
+      <LinearGradient
+        colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
         style={{ flex: 1 }}
       >
-        <LinearGradient
-          colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
-          style={{ flex: 1 }}
-        >
-          <SafeAreaView style={styles.safeContainer}>
-            <View style={styles.header}>
-              <TouchableOpacity onPress={router.back} style={styles.headerIcon}>
-                <Ionicons name="arrow-back" size={26} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Réservation Piscine</Text>
-            </View>
+        <SafeAreaView style={styles.safeContainer}>
+          <View style={styles.header}>
+  <TouchableOpacity onPress={router.back} style={styles.headerIcon}>
+    <Ionicons name="arrow-back" size={26} color="white" />
+  </TouchableOpacity>
+  <Text style={styles.headerTitle}>Réservation des salles</Text>
+</View>
 
             <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 40 }}>
               <View style={{ width: '100%' }}>
@@ -315,8 +315,8 @@ export default function ReservationPiscine() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#111827' },
-  safeContainer: { flex: 1, backgroundColor: '#111827' },
+  container: { flex: 1 }, // Suppression du backgroundColor
+  safeContainer: { flex: 1, backgroundColor: 'transparent' }, // transparent pour laisser passer le background
   title: { color: 'white', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
   label: { color: 'white', fontSize: 15, marginBottom: 6 },
   input: { backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 10, color: 'white', padding: 10, marginBottom: 10 },

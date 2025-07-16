@@ -38,7 +38,7 @@ const LoginScreen = () => {
   
 
   const onCreateAccountPress = () => {
-    router.push('/'); // Redirige vers le RegistrationStep1 (index = registration screen step1)
+    router.push('../screens/RegistrationScreen'); // Redirige vers le RegistrationStep1 (index = registration screen step1)
   };
 
   return (
@@ -143,5 +143,6 @@ const styles = StyleSheet.create({
   },
   createAccount: {
     fontWeight: '500',
+    
   },
 });

@@ -133,7 +133,7 @@ export default function ActivityDetail() {
               resizeMode="cover"
             >
               <LinearGradient
-                colors={['rgba(255,255,255,0.3)', 'rgba(17, 24, 39, 0.76)']}
+                colors={['rgba(255, 255, 255, 0)', 'rgba(60, 61, 64, 0.84)']}
                 style={styles.imageOverlay}
               >
                 <TouchableOpacity onPress={router.back} style={styles.backButton}>

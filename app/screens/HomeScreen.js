@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import FloatingTabBar from '../components/FloatingTabBar';
-
+const router = useRouter();
 const activities = [
   {
     id: 'piscine',
@@ -73,10 +73,14 @@ export default function Home() {
          
           <View style={styles.header}>
             <Text style={styles.userName}>{userFirstName}</Text>
-            <View style={styles.notificationIcon}>
-              <Ionicons name="notifications-outline" size={26} color="white" />
-              <View style={styles.badge} />
-            </View>
+            <TouchableOpacity
+  style={styles.notificationIcon}
+  onPress={() => router.push('/screens/NotificationScreen')}
+>
+  <Ionicons name="notifications-outline" size={26} color="white" />
+  <View style={styles.badge} />
+</TouchableOpacity>
+
           </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -105,7 +109,7 @@ export default function Home() {
                     imageStyle={{ borderRadius: 16 }}
                   >
                     <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.6)']}
+                      colors={['transparent', 'rgba(223, 217, 217, 0.14)']}
                       style={styles.cardContent}
                     >
                       <Text style={styles.cardTitle}>{activity.title}</Text>
