@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FloatingTabBar from '../components/FloatingTabBar';
+import Header from '../components/Header';
+import { getUnreadNotificationCount } from '../utils/notifications';
 
 export default function Parametres() {
   const router = useRouter();
@@ -53,6 +55,8 @@ export default function Parametres() {
     );
   };
 
+  const unreadCount = getUnreadNotificationCount();
+
   return (
     <ImageBackground
       source={require('../../assets/images/background_app.jpg')}
@@ -63,13 +67,7 @@ export default function Parametres() {
         <SafeAreaView style={styles.safeContainer}>
           <StatusBar barStyle="light-content" backgroundColor="#111827" />
 
-          <View style={styles.header}>
-            <Text style={styles.title}>Paramètres</Text>
-            <View style={styles.notificationIcon}>
-              <Ionicons name="notifications-outline" size={26} color="white" />
-              <View style={styles.badge} />
-            </View>
-          </View>
+          <Header title="Paramètres" />
 
           <View style={styles.body}>
             <View style={styles.card}>
@@ -132,7 +130,7 @@ export default function Parametres() {
 const styles = StyleSheet.create({
   safeContainer: { flex: 1 },
   header: {
-    marginTop: 20,
+    
     marginBottom: 40,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -149,6 +147,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     borderRadius: 5,
   },
+  badgeText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
   title: {
     color: 'white',
     fontSize: 22,
@@ -157,7 +160,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    
     alignItems: 'center',
   },
   card: {

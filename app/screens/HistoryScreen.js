@@ -13,6 +13,8 @@ import {
 
 import { useRouter } from 'expo-router';
 import FloatingTabBar from '../components/FloatingTabBar';
+import Header from '../components/Header';
+import { getUnreadNotificationCount } from '../utils/notifications';
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -63,6 +65,8 @@ export default function HistoryScreen() {
     return null;
   };
 
+  const unreadCount = getUnreadNotificationCount();
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#111827" />
@@ -75,13 +79,7 @@ export default function HistoryScreen() {
           colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
           style={styles.gradient}
         >
-          <View style={styles.header}>
-            <Text style={styles.title}>Historique</Text>
-            <View style={styles.notificationIcon}>
-              <Ionicons name="notifications-outline" size={26} color="white" />
-              <View style={styles.badge} />
-            </View>
-          </View>
+          <Header title="Historique" />
 
           {/* Filtres */}
           <View style={styles.filterContainer}>
@@ -145,26 +143,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   background: { flex: 1 },
-  gradient: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
-
-  header: {
-    marginBottom: 30,
-    paddingHorizontal: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  title: { color: 'white', fontSize: 22, fontWeight: 'bold' },
-  notificationIcon: { position: 'relative' },
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 10,
-    height: 10,
-    backgroundColor: 'red',
-    borderRadius: 5,
-  },
+  gradient: { flex: 1, paddingTop: 40, paddingHorizontal: 20 },
 
   filterContainer: {
     flexDirection: 'row',

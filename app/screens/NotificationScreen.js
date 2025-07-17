@@ -87,7 +87,7 @@ export default function NotificationScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   background: { flex: 1 },
-  gradient: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
+  gradient: { flex: 1, paddingTop: 80, paddingHorizontal: 20 },
   header: {
     marginBottom: 40,
     paddingHorizontal: 10,

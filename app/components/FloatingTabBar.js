@@ -2,11 +2,12 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { getUnreadNotificationCount } from '../utils/notifications';
 
 const tabs = [
-  { name: 'home', icon: 'home-outline' },
-  { name: 'history', icon: 'history' },
-  { name: 'settings', icon: 'settings-outline' },
+  { name: 'home', icon: 'home-outline', route: '/screens/HomeScreen' },
+  { name: 'history', icon: 'history', route: '/screens/HistoryScreen' },
+  { name: 'settings', icon: 'settings-outline', route: '/screens/ParametresScreen' },
 ];
 
 const FloatingTabBar = () => {
@@ -23,11 +24,18 @@ const FloatingTabBar = () => {
     }
   };
 
+  const unreadCount = getUnreadNotificationCount();
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.tabBar}>
         {tabs.map((tab) => {
-          const isActive = pathname.includes(tab.name);
+          let isActive;
+          if (tab.name === 'settings') {
+            isActive = pathname.toLowerCase().includes('parametres');
+          } else {
+            isActive = pathname.toLowerCase().includes(tab.name);
+          }
           const IconComponent = tab.icon === 'history' ? MaterialIcons : Ionicons;
 
           return (
@@ -40,7 +48,7 @@ const FloatingTabBar = () => {
               <IconComponent
                 name={tab.icon}
                 size={24}
-                color={isActive ? '#1FA739' : '#FFFFFF'}
+                color={isActive ? '#32CD32' : '#FFFFFF'}
               />
               {isActive && <View style={styles.activeIndicator} />}
             </TouchableOpacity>
@@ -90,7 +98,7 @@ const styles = StyleSheet.create({
     bottom: -4,
     height: 3,
     width: 24,
-    backgroundColor: '#1FA739',
+    backgroundColor: '#32CD32',
     borderRadius: 2,
   },
 });

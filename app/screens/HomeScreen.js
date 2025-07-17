@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -11,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import FloatingTabBar from '../components/FloatingTabBar';
+import Header from '../components/Header';
 const router = useRouter();
 const activities = [
   {
@@ -70,18 +70,7 @@ export default function Home() {
           colors={['rgba(34, 39, 34, 0.14)', 'rgba(147, 148, 150, 0.63)']}
           style={styles.gradient}
         >
-         
-          <View style={styles.header}>
-            <Text style={styles.userName}>{userFirstName}</Text>
-            <TouchableOpacity
-  style={styles.notificationIcon}
-  onPress={() => router.push('/screens/NotificationScreen')}
->
-  <Ionicons name="notifications-outline" size={26} color="white" />
-  <View style={styles.badge} />
-</TouchableOpacity>
-
-          </View>
+          <Header title="Accueil" />
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
             {/* Statistiques */}
@@ -132,30 +121,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   background: { flex: 1 },
-  gradient: { flex: 1, justifyContent: 'space-between' },
-  header: {
-    marginTop: 60,
-    marginBottom: 40,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  userName: {
-    fontSize: 22,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  notificationIcon: { position: 'relative' },
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 10,
-    height: 10,
-    backgroundColor: 'red',
-    borderRadius: 5,
-  },
+  gradient: { flex: 1, justifyContent: 'space-between', paddingTop: 40 },
   scrollContent: {
     paddingHorizontal: 16,
     paddingBottom: 100,
