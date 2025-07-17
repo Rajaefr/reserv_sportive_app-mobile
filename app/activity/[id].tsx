@@ -102,16 +102,14 @@ export default function ActivityDetail() {
   }
 
   const handleReservation = () => {
-  if (activityId === 'piscine') {
-    console.log("activityId:", activityId);
-
-    router.push('./reservation/piscine');
-  } else if (activityId === 'workout') {
-    router.push('./reservation/workout');
-  } else {
-    alert(`La réservation n'est pas disponible pour ${activity.title}.`);
-  }
-};
+    if (activityId === 'piscine') {
+      router.push('/reservation/piscine');
+    } else if (activityId === 'workout') {
+      router.push('/reservation/workout');
+    } else {
+      alert(`La réservation n'est pas disponible pour ${activity.title}.`);
+    }
+  };
 
   return (
     <View style={styles.container}>
