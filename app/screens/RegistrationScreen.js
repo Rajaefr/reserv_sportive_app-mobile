@@ -1,59 +1,47 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ImageBackground, StatusBar, StyleSheet, View } from 'react-native';
-
-import StepOne from '../components/StepOne';
-import StepTwo from '../components/StepTwo';
-
+"use client"
+import { LinearGradient } from "expo-linear-gradient"
+import { useRouter } from "expo-router"
+import { useState } from "react"
+import { ImageBackground, StatusBar, StyleSheet, View } from "react-native"
+import StepOne from "../components/StepOne"
+import StepTwo from "../components/StepTwo"
 
 const RegistrationScreen = () => {
-  const router = useRouter();
+  const router = useRouter()
 
-  // ✅ Utilisation unique et correcte de onLoginPress
   const onLoginPress = () => {
-    router.push('/login'); // Navigue vers login.js
-  };
+    router.push("/login")
+  }
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    matricule: '',
-    password: '',
-    confirmPassword: '',
-  });
+    userType: "",
+    fullName: "",
+    email: "",
+    phone: "",
+    matricule: "",
+    rcar: "",
+    password: "",
+    confirmPassword: "",
+  })
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSpouseChange = (index, field, value) => {
-    const newSpouses = [...formData.spouses];
-    if (!newSpouses[index]) newSpouses[index] = {};
-    newSpouses[index][field] = value;
-    setFormData((prev) => ({ ...prev, spouses: newSpouses }));
-  };
-
-  const handleChildChange = (index, field, value) => {
-    const newChildren = [...formData.children];
-    if (!newChildren[index]) newChildren[index] = {};
-    newChildren[index][field] = value;
-    setFormData((prev) => ({ ...prev, children: newChildren }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const nextStep = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1);
-  };
+    if (currentStep < 2) setCurrentStep(currentStep + 1)
+  }
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
+    if (currentStep > 1) setCurrentStep(currentStep - 1)
+  }
 
   const handleSubmit = () => {
-    console.log('Form data:', formData);
-  };
+    console.log("Form data:", formData)
+    // Ici tu peux ajouter la logique d'inscription
+    router.push("/screens/HomeScreen")
+  }
 
   const renderCurrentStep = () => {
     const commonProps = {
@@ -62,42 +50,38 @@ const RegistrationScreen = () => {
       nextStep,
       prevStep,
       currentStep,
-    };
+    }
 
     switch (currentStep) {
       case 1:
-        return <StepOne {...commonProps} onLoginPress={onLoginPress} />;
-     
+        return <StepOne {...commonProps} onLoginPress={onLoginPress} />
       case 2:
-        return <StepTwo {...commonProps} handleSubmit={handleSubmit} />;
+        return <StepTwo {...commonProps} handleSubmit={handleSubmit} />
       default:
-        return <StepOne {...commonProps} onLoginPress={onLoginPress} />;
+        return <StepOne {...commonProps} onLoginPress={onLoginPress} />
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#111827" />
       <ImageBackground
-        source={require('../../assets/images/background_app.jpg')}
+        source={require("../../assets/images/background_app.jpg")}
         resizeMode="cover"
         style={styles.background}
       >
-        <LinearGradient
-          colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
-          style={styles.gradient}
-        >
+        <LinearGradient colors={["rgba(21, 20, 20, 0.94)", "rgba(43, 41, 41, 0.86)"]} style={styles.gradient}>
           {renderCurrentStep()}
         </LinearGradient>
       </ImageBackground>
     </View>
-  );
-};
+  )
+}
 
-export default RegistrationScreen;
+export default RegistrationScreen
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#111827' },
-  background: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  gradient: { flex: 1, justifyContent: 'center', width: '100%', paddingHorizontal: 16 },
-});
+  container: { flex: 1, backgroundColor: "#111827" },
+  background: { flex: 1, justifyContent: "center", alignItems: "center" },
+  gradient: { flex: 1, justifyContent: "center", width: "100%", paddingHorizontal: 20 },
+})

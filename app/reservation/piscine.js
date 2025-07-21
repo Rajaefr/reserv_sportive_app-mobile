@@ -1,9 +1,10 @@
-// ReservationPiscine.tsx
+"use client"
 
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { Ionicons } from "@expo/vector-icons"
+import DateTimePicker from "@react-native-community/datetimepicker"
+import { LinearGradient } from "expo-linear-gradient"
+import { useLocalSearchParams, useRouter } from "expo-router"
+import { useState } from "react"
 import {
   Alert,
   ImageBackground,
@@ -14,426 +15,989 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-const slotOptions = {
-  Homme: ["Lundi 15h - Vendredi 10h", "Mardi 14h - Jeudi 08h", "Samedi 10h - Dimanche 10h"],
-  Femme: ["Lundi 10h - Mercredi 16h", "Mardi 12h - Jeudi 09h", "Samedi 09h - Dimanche 09h"],
-  Enfant: ["Samedi 10h - Dimanche 10h", "Samedi 11h - Dimanche 09h"],
-  Employe_Actif: ["Tous les jours 06h", "Tous les jours 22h"],
-};
+} from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 export default function ReservationPiscine() {
-  const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
+  const router = useRouter()
+  const { role } = useLocalSearchParams()
+  const isRetraite = role === "retraite"
 
-  const [mainPerson, setMainPerson] = useState({
-    reserveForSelf: false,
-    gender: '',
-    isActiveEmployee: false,
-    name: '',
-  });
+  const [step, setStep] = useState(0)
+  const [reserveForSelf, setReserveForSelf] = useState(false)
+  const [addSpouses, setAddSpouses] = useState(false)
+  const [addChildren, setAddChildren] = useState(false)
 
-  const [addSpouses, setAddSpouses] = useState(false);
-  const [addChildren, setAddChildren] = useState(false);
-  const [numSpouses, setNumSpouses] = useState(0);
-  const [spouses, setSpouses] = useState([]);
-  const [numChildren, setNumChildren] = useState(0);
-  const [children, setChildren] = useState([]);
-  const [groupSlots, setGroupSlots] = useState({});
+  // Informations personnelles (séparées nom/prénom)
+  const [selfInfo, setSelfInfo] = useState({
+    nom: "",
+    prenom: "",
+    cne: "",
+  })
 
-  const canContinue = () => {
-    if (currentStep === 0) return true;
-    if (currentStep === 1) {
-      if (mainPerson.reserveForSelf && (!mainPerson.gender || !mainPerson.name.trim())) return false;
-      if (!mainPerson.reserveForSelf && addSpouses && !mainPerson.gender) return false;
-      if (addSpouses && numSpouses > 0 && !spouses.every(s => s.name.trim())) return false;
-      if (addChildren && numChildren > 0 && !children.every(c => c.name.trim())) return false;
-      return true;
-    }
-    if (currentStep === 2) {
-      const groups = [];
-      if (mainPerson.reserveForSelf)
-        groups.push(mainPerson.isActiveEmployee ? 'Employe_Actif' : (mainPerson.gender === 'H' ? 'Homme' : 'Femme'));
-      if (addSpouses && numSpouses > 0) groups.push('Femme');
-      if (addChildren && numChildren > 0) groups.push('Enfant');
-      return groups.every(gr => groupSlots[gr]);
-    }
-    return true;
-  };
+  // Conjoints (maximum 2)
+  const [spouses, setSpouses] = useState([
+    {
+      nom: "",
+      prenom: "",
+      cne: "",
+    },
+  ])
 
-  const nextStep = () => {
-    if (!canContinue()) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs requis.');
-      return;
-    }
-    setCurrentStep(currentStep + 1);
-  };
+  // Enfants (maximum 5, âge > 6 ans et < 18 ans) - SEULEMENT pour collaborateurs
+  const [children, setChildren] = useState([
+    {
+      nom: "",
+      prenom: "",
+      dateNaissance: new Date(),
+      sexe: "",
+      showDatePicker: false,
+    },
+  ])
 
-  const prevStep = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
-  };
+  // Tarification (25 DH par personne selon le cahier des charges)
+  // const PRIX_PAR_PERSONNE = 25
 
   const handleSubmit = () => {
-    Alert.alert('Succès', 'Votre réservation a été confirmée.');
-    router.push('/home');
-  };
+    const totalPersonnes =
+      (reserveForSelf ? 1 : 0) +
+      (addSpouses ? spouses.filter((sp) => sp.nom.trim() && sp.prenom.trim()).length : 0) +
+      (addChildren && !isRetraite ? children.filter((ch) => ch.nom.trim() && ch.prenom.trim()).length : 0)
 
-  const renderInitialChoice = () => (
+    Alert.alert(
+      "Demande soumise",
+      `Votre demande de réservation piscine pour ${totalPersonnes} personne(s) a été soumise.\n\nElle sera traitée par l'administration.`,
+      [{ text: "OK", onPress: () => router.push("/home") }],
+    )
+  }
+
+  const validateStep = () => {
+    if (step === 1) {
+      if (reserveForSelf && (!selfInfo.nom.trim() || !selfInfo.prenom.trim() || !selfInfo.cne.trim())) {
+        return false
+      }
+      if (
+        addSpouses &&
+        !spouses.every((sp) => !sp.nom.trim() || (sp.nom.trim() && sp.prenom.trim() && sp.cne.trim()))
+      ) {
+        return false
+      }
+      if (
+        addChildren &&
+        !isRetraite &&
+        children.some((ch) => ch.nom.trim() && (!ch.prenom.trim() || !ch.sexe || !isAgeBetween6And18(ch.dateNaissance)))
+      ) {
+        return false
+      }
+    }
+    return true
+  }
+
+  const isAgeBetween6And18 = (date) => {
+    const today = new Date()
+    const birthDate = new Date(date)
+    const age = today.getFullYear() - birthDate.getFullYear()
+    const monthDiff = today.getMonth() - birthDate.getMonth()
+
+    let actualAge = age
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      actualAge--
+    }
+
+    return actualAge > 6 && actualAge < 18
+  }
+
+  const addSpouse = () => {
+    if (spouses.length < 2) {
+      setSpouses([...spouses, { nom: "", prenom: "", cne: "" }])
+    }
+  }
+
+  const removeSpouse = (index) => {
+    setSpouses(spouses.filter((_, i) => i !== index))
+  }
+
+  const addChild = () => {
+    if (children.length < 5 && !isRetraite) {
+      setChildren([
+        ...children,
+        {
+          nom: "",
+          prenom: "",
+          dateNaissance: new Date(),
+          sexe: "",
+          showDatePicker: false,
+        },
+      ])
+    }
+  }
+
+  const removeChild = (index) => {
+    setChildren(children.filter((_, i) => i !== index))
+  }
+
+  const updateChild = (index, field, value) => {
+    const updated = [...children]
+    updated[index][field] = value
+    setChildren(updated)
+  }
+
+  const renderStep0 = () => (
     <View style={styles.card}>
-      <Text style={styles.title}>Paramètres de réservation</Text>
+      <View style={styles.stepIndicator}>
+        <Text style={styles.stepText}>Étape 1/3</Text>
+      </View>
+
+      <Text style={styles.title}>Sélection des participants</Text>
+      <Text style={styles.subtitle}>Qui souhaitez-vous inclure dans cette réservation ?</Text>
+
+      {/* Affichage du rôle utilisateur */}
+      <View style={styles.roleIndicator}>
+        <Ionicons name={isRetraite ? "person-circle" : "briefcase"} size={20} color="#1FA739" />
+        <Text style={styles.roleText}>
+          {isRetraite ? "Compte Retraité (RCAR)" : "Compte Collaborateur (Matricule)"}
+        </Text>
+      </View>
+
+      <View style={styles.optionsContainer}>
+        <TouchableOpacity
+          style={[styles.optionCard, reserveForSelf && styles.selectedCard]}
+          onPress={() => setReserveForSelf(!reserveForSelf)}
+        >
+          <Ionicons
+            name={reserveForSelf ? "person" : "person-outline"}
+            size={24}
+            color={reserveForSelf ? "#1FA739" : "white"}
+          />
+          <Text style={[styles.optionText, reserveForSelf && styles.selectedText]}>Moi-même</Text>
+          <Ionicons
+            name={reserveForSelf ? "checkmark-circle" : "ellipse-outline"}
+            size={20}
+            color={reserveForSelf ? "#1FA739" : "#ccc"}
+          />
+        </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.checkbox}
-        onPress={() => setMainPerson({ ...mainPerson, reserveForSelf: !mainPerson.reserveForSelf })}
+          style={[styles.optionCard, addSpouses && styles.selectedCard]}
+          onPress={() => setAddSpouses(!addSpouses)}
       >
-        <Ionicons name={mainPerson.reserveForSelf ? 'checkbox' : 'square-outline'} size={22} color="white" />
-        <Text style={styles.optionText}>Réserver pour moi</Text>
+        <Ionicons
+            name={addSpouses ? "people" : "people-outline"}
+            size={24}
+            color={addSpouses ? "#1FA739" : "white"}
+          />
+          <Text style={[styles.optionText, addSpouses && styles.selectedText]}>Conjoints (max. 2)</Text>
+          <Ionicons
+            name={addSpouses ? "checkmark-circle" : "ellipse-outline"}
+          size={20}
+            color={addSpouses ? "#1FA739" : "#ccc"}
+        />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.checkbox} onPress={() => setAddSpouses(!addSpouses)}>
-        <Ionicons name={addSpouses ? 'checkbox' : 'square-outline'} size={22} color="white" />
-        <Text style={styles.optionText}>Ajouter des conjoints</Text>
-      </TouchableOpacity>
+        {/* Les enfants ne sont disponibles QUE pour les collaborateurs */}
+        {!isRetraite && (
+  <TouchableOpacity
+            style={[styles.optionCard, addChildren && styles.selectedCard]}
+            onPress={() => setAddChildren(!addChildren)}
+  >
+    <Ionicons
+              name={addChildren ? "school" : "school-outline"}
+              size={24}
+              color={addChildren ? "#1FA739" : "white"}
+            />
+            <Text style={[styles.optionText, addChildren && styles.selectedText]}>Enfants 6-18 ans (max. 5)</Text>
+            <Ionicons
+              name={addChildren ? "checkmark-circle" : "ellipse-outline"}
+      size={20}
+              color={addChildren ? "#1FA739" : "#ccc"}
+    />
+  </TouchableOpacity>
+)}
 
-      <TouchableOpacity style={styles.checkbox} onPress={() => setAddChildren(!addChildren)}>
-        <Ionicons name={addChildren ? 'checkbox' : 'square-outline'} size={22} color="white" />
-        <Text style={styles.optionText}>Ajouter des enfants</Text>
-      </TouchableOpacity>
+        {/* Message informatif pour les retraités */}
+        {isRetraite && (
+          <View style={styles.infoCard}>
+            <Ionicons name="information-circle" size={20} color="#f5780b" />
+            <Text style={styles.infoText}>
+              En tant que retraité, vous pouvez réserver pour vous-même et vos conjoints uniquement.
+            </Text>
+          </View>
+        )}
+      </View>
 
       <TouchableOpacity
-        style={[
-          styles.button,
-          { alignSelf: 'center', width: '90%', opacity: (mainPerson.reserveForSelf || addSpouses || addChildren) ? 1 : 0.5 }
-        ]}
-        onPress={(mainPerson.reserveForSelf || addSpouses || addChildren) ? nextStep : null}
-        disabled={!(mainPerson.reserveForSelf || addSpouses || addChildren)}
+        style={[styles.primaryButton, { opacity: reserveForSelf || addSpouses || addChildren ? 1 : 0.5 }]}
+        onPress={() => setStep(1)}
+        disabled={!(reserveForSelf || addSpouses || addChildren)}
       >
         <Text style={styles.buttonText}>Continuer</Text>
+        <Ionicons name="arrow-forward" size={20} color="white" />
       </TouchableOpacity>
     </View>
-  );
+  )
 
-  const renderForm = () => (
-    <View style={styles.card}>
-      <Text style={styles.title}>Informations du/des réservant(s)</Text>
-  
-      {!mainPerson.reserveForSelf && addSpouses && !mainPerson.gender && (
-        <>
-          <Text style={styles.label}>Genre (pour déterminer le nombre de conjoints) :</Text>
-          <View style={styles.genderContainer}>
-            <TouchableOpacity
-              onPress={() => setMainPerson({ ...mainPerson, gender: 'H' })}
-              style={[
-                styles.genderOption,
-                mainPerson.gender === 'H' && styles.selectedOption,
-              ]}
-            >
-              <Text style={styles.optionText}>Homme</Text>
-            </TouchableOpacity>
-  
-            <TouchableOpacity
-              onPress={() => setMainPerson({ ...mainPerson, gender: 'F' })}
-              style={[
-                styles.genderOption,
-                mainPerson.gender === 'F' && styles.selectedOption,
-              ]}
-            >
-              <Text style={styles.optionText}>Femme</Text>
-            </TouchableOpacity>
+  const renderStep1 = () => (
+    <ScrollView style={styles.card}>
+      <View style={styles.stepIndicator}>
+        <Text style={styles.stepText}>Étape 2/3</Text>
+      </View>
+
+      <Text style={styles.title}>Informations des participants</Text>
+      <Text style={styles.subtitle}>Veuillez remplir les informations requises</Text>
+
+      {/* Informations personnelles */}
+      {reserveForSelf && (
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="person" size={20} color="#1FA739" />
+            <Text style={styles.sectionTitle}>Mes informations</Text>
           </View>
-        </>
-      )}
-  
-      {mainPerson.reserveForSelf && (
-        <>
-          <Text style={styles.label}>Genre :</Text>
-          <View style={styles.genderContainer}>
-            <TouchableOpacity
-              onPress={() => setMainPerson({ ...mainPerson, gender: 'H' })}
-              style={[
-                styles.genderOption,
-                mainPerson.gender === 'H' && styles.selectedOption,
-              ]}
-            >
-              <Text style={styles.optionText}>Homme</Text>
-            </TouchableOpacity>
-  
-            <TouchableOpacity
-              onPress={() => setMainPerson({ ...mainPerson, gender: 'F' })}
-              style={[
-                styles.genderOption,
-                mainPerson.gender === 'F' && styles.selectedOption,
-              ]}
-            >
-              <Text style={styles.optionText}>Femme</Text>
-            </TouchableOpacity>
-          </View>
-  
-          <TouchableOpacity
-            style={styles.checkbox}
-            onPress={() => setMainPerson({ ...mainPerson, isActiveEmployee: !mainPerson.isActiveEmployee })}
-          >
-            <Ionicons name={mainPerson.isActiveEmployee ? 'checkbox' : 'square-outline'} size={22} color="white" />
-            <Text style={styles.optionText}>Employé Actif</Text>
-          </TouchableOpacity>
-  
-          <TextInput
-            placeholder="Nom complet"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={mainPerson.name}
-            onChangeText={(text) => setMainPerson({ ...mainPerson, name: text })}
-          />
-        </>
-      )}
-  
-      {addSpouses && (
-        <>
-          <Text style={styles.label}>Nombre de conjoints :</Text>
-          <TextInput
-            keyboardType="numeric"
-            placeholder="0"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={String(numSpouses)}
-            onChangeText={(val) => {
-              const maxSpouses = mainPerson.gender === 'H' ? 2 : 1;
-              const n = Math.min(parseInt(val) || 0, maxSpouses);
-              setNumSpouses(n);
-              setSpouses(Array.from({ length: n }, (_, i) => spouses[i] || { name: '', isEmployee: false }));
-            }}
-          />
-          {spouses.map((sp, idx) => (
-            <View key={idx} style={[styles.card, { backgroundColor: 'rgba(255,255,255,0.06)', marginTop: 10 }]}>
-              <TextInput
-                placeholder={`Nom complet conjoint ${idx + 1}`}
-                placeholderTextColor="#aaa"
+
+          <View style={styles.inputRow}>
+            <View style={styles.inputHalf}>
+              <Text style={styles.label}>Nom *</Text>
+        <TextInput
                 style={styles.input}
-                value={sp.name}
-                onChangeText={(text) => {
-                  const updated = [...spouses];
-                  updated[idx] = { ...updated[idx], name: text };
-                  setSpouses(updated);
+                placeholder="Nom"
+          placeholderTextColor="#aaa"
+                value={selfInfo.nom}
+                onChangeText={(text) => setSelfInfo({ ...selfInfo, nom: text })}
+              />
+            </View>
+            <View style={styles.inputHalf}>
+              <Text style={styles.label}>Prénom *</Text>
+              <TextInput
+          style={styles.input}
+                placeholder="Prénom"
+                placeholderTextColor="#aaa"
+                value={selfInfo.prenom}
+                onChangeText={(text) => setSelfInfo({ ...selfInfo, prenom: text })}
+              />
+            </View>
+          </View>
+
+          <Text style={styles.label}>CNE *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Carte Nationale d'Identité"
+            placeholderTextColor="#aaa"
+            value={selfInfo.cne}
+            onChangeText={(text) => setSelfInfo({ ...selfInfo, cne: text })}
+          />
+        </View>
+      )}
+
+      {/* Conjoints */}
+      {addSpouses && (
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="people" size={20} color="#1FA739" />
+            <Text style={styles.sectionTitle}>Conjoints</Text>
+            {spouses.length < 2 && (
+              <TouchableOpacity onPress={addSpouse} style={styles.addButton}>
+                <Ionicons name="add-circle" size={24} color="#1FA739" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {spouses.map((spouse, index) => (
+            <View key={index} style={styles.memberCard}>
+              <View style={styles.memberHeader}>
+                <Text style={styles.memberTitle}>Conjoint {index + 1}</Text>
+                {spouses.length > 1 && (
+                  <TouchableOpacity onPress={() => removeSpouse(index)}>
+                    <Ionicons name="trash" size={20} color="#ff4444" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <View style={styles.inputRow}>
+                <View style={styles.inputHalf}>
+                  <Text style={styles.label}>Nom *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Nom"
+                    placeholderTextColor="#aaa"
+                    value={spouse.nom}
+                    onChangeText={(text) => {
+                      const updated = [...spouses]
+                      updated[index].nom = text
+                      setSpouses(updated)
+                    }}
+                  />
+                </View>
+                <View style={styles.inputHalf}>
+                  <Text style={styles.label}>Prénom *</Text>
+            <TextInput
+                    style={styles.input}
+                    placeholder="Prénom"
+              placeholderTextColor="#aaa"
+                    value={spouse.prenom}
+                    onChangeText={(text) => {
+                      const updated = [...spouses]
+                      updated[index].prenom = text
+                      setSpouses(updated)
+                    }}
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.label}>CNE *</Text>
+              <TextInput
+              style={styles.input}
+                placeholder="Carte Nationale d'Identité"
+                placeholderTextColor="#aaa"
+                value={spouse.cne}
+              onChangeText={(text) => {
+                  const updated = [...spouses]
+                  updated[index].cne = text
+                  setSpouses(updated)
                 }}
               />
-              <TouchableOpacity
-                style={styles.checkbox}
-                onPress={() => {
-                  const updated = [...spouses];
-                  updated[idx] = { ...updated[idx], isEmployee: !updated[idx].isEmployee };
-                  setSpouses(updated);
-                }}
-              >
-                <Ionicons name={sp.isEmployee ? 'checkbox' : 'square-outline'} size={22} color="white" />
-                <Text style={styles.optionText}>Employé OCP</Text>
-              </TouchableOpacity>
             </View>
           ))}
-        </>
+        </View>
       )}
-  
-      {addChildren && (
-        <>
-          <Text style={styles.label}>Nombre d'enfants :</Text>
-          <TextInput
-            keyboardType="numeric"
-            placeholder="0"
-            placeholderTextColor="#aaa"
-            style={styles.input}
-            value={String(numChildren)}
-            onChangeText={(val) => {
-              const n = Math.min(parseInt(val) || 0, 5);
-              setNumChildren(n);
-              setChildren(Array.from({ length: n }, (_, i) => children[i] || { name: '' }));
-            }}
-          />
-          {children.map((ch, idx) => (
-            <TextInput
-              key={idx}
-              placeholder={`Nom complet enfant ${idx + 1}`}
-              placeholderTextColor="#aaa"
-              style={styles.input}
-              value={ch.name}
-              onChangeText={(text) => {
-                const updated = [...children];
-                updated[idx] = { name: text };
-                setChildren(updated);
-              }}
-            />
-          ))}
-        </>
+
+      {/* Enfants - SEULEMENT pour les collaborateurs */}
+      {addChildren && !isRetraite && (
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="school" size={20} color="#1FA739" />
+            <Text style={styles.sectionTitle}>Enfants (6-18 ans)</Text>
+            {children.length < 5 && (
+              <TouchableOpacity onPress={addChild} style={styles.addButton}>
+                <Ionicons name="add-circle" size={24} color="#1FA739" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {children.map((child, index) => (
+            <View key={index} style={styles.memberCard}>
+              <View style={styles.memberHeader}>
+                <Text style={styles.memberTitle}>Enfant {index + 1}</Text>
+                {children.length > 1 && (
+                  <TouchableOpacity onPress={() => removeChild(index)}>
+                    <Ionicons name="trash" size={20} color="#ff4444" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <View style={styles.inputRow}>
+                <View style={styles.inputHalf}>
+                  <Text style={styles.label}>Nom *</Text>
+      <TextInput
+        style={styles.input}
+                    placeholder="Nom"
+        placeholderTextColor="#aaa"
+                    value={child.nom}
+                    onChangeText={(text) => updateChild(index, "nom", text)}
+                  />
+                </View>
+                <View style={styles.inputHalf}>
+                  <Text style={styles.label}>Prénom *</Text>
+        <TextInput
+                    style={styles.input}
+                    placeholder="Prénom"
+          placeholderTextColor="#aaa"
+                    value={child.prenom}
+                    onChangeText={(text) => updateChild(index, "prenom", text)}
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.label}>Sexe *</Text>
+              <View style={styles.genderContainer}>
+                <TouchableOpacity
+                  style={[styles.genderOption, child.sexe === "M" && styles.selectedGender]}
+                  onPress={() => updateChild(index, "sexe", "M")}
+                >
+                  <Ionicons name="male" size={20} color={child.sexe === "M" ? "white" : "#ccc"} />
+                  <Text style={[styles.genderText, child.sexe === "M" && styles.selectedGenderText]}>Masculin</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.genderOption, child.sexe === "F" && styles.selectedGender]}
+                  onPress={() => updateChild(index, "sexe", "F")}
+                >
+                  <Ionicons name="female" size={20} color={child.sexe === "F" ? "white" : "#ccc"} />
+                  <Text style={[styles.genderText, child.sexe === "F" && styles.selectedGenderText]}>Féminin</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.label}>Date de naissance *</Text>
+              <TouchableOpacity style={styles.dateButton} onPress={() => updateChild(index, "showDatePicker", true)}>
+                <Ionicons name="calendar" size={20} color="#1FA739" />
+                <Text style={styles.dateText}>{child.dateNaissance.toLocaleDateString("fr-FR")}</Text>
+              </TouchableOpacity>
+
+              {child.showDatePicker && (
+                <DateTimePicker
+                  value={child.dateNaissance}
+                  mode="date"
+                  display="default"
+                  maximumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    updateChild(index, "showDatePicker", false)
+                    if (selectedDate) {
+                      updateChild(index, "dateNaissance", selectedDate)
+                    }
+                  }}
+                />
+              )}
+
+              {child.nom.trim() && child.prenom.trim() && !isAgeBetween6And18(child.dateNaissance) && (
+                <View style={styles.warningContainer}>
+                  <Ionicons name="warning" size={16} color="#f5780b" />
+                  <Text style={styles.warningText}>L'enfant doit avoir entre 6 et 18 ans pour la piscine</Text>
+                </View>
+              )}
+            </View>
+      ))}
+    </View>
       )}
-  
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
-        <TouchableOpacity style={[styles.secondaryButton, { flex: 0.48 }]} onPress={prevStep}>
+
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(0)}>
+          <Ionicons name="arrow-back" size={20} color="white" />
           <Text style={styles.buttonText}>Précédent</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, { flex: 0.48, opacity: canContinue() ? 1 : 0.5 }]}
-          onPress={canContinue() ? nextStep : null}
-        >
-          <Text style={styles.buttonText}>Suivant</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-  
-
-  const renderSlotSelection = () => {
-    const groups = [];
-    if (mainPerson.reserveForSelf)
-      groups.push(mainPerson.isActiveEmployee ? 'Employe_Actif' : (mainPerson.gender === 'H' ? 'Homme' : 'Femme'));
-    if (addSpouses && numSpouses > 0) groups.push('Femme');
-    if (addChildren && numChildren > 0) groups.push('Enfant');
-
-    return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Choix des créneaux</Text>
-        {groups.map((group, idx) => (
-          <View key={idx} style={{ marginBottom: 12 }}>
-            <Text style={styles.label}>{group}</Text>
-            {slotOptions[group].map((slot, i) => (
               <TouchableOpacity
-                key={i}
-                style={[styles.option, groupSlots[group] === slot && styles.selectedOption]}
-                onPress={() => setGroupSlots(prev => ({ ...prev, [group]: slot }))}
-              >
-                <Text style={styles.optionText}>{slot}</Text>
+          style={[styles.primaryButton, { opacity: validateStep() ? 1 : 0.5 }]}
+          onPress={() => validateStep() && setStep(2)}
+          disabled={!validateStep()}
+        >
+          <Text style={styles.buttonText}>Continuer</Text>
+          <Ionicons name="arrow-forward" size={20} color="white" />
               </TouchableOpacity>
+      </View>
+    </ScrollView>
+  )
+
+  const renderStep2 = () => (
+    <ScrollView style={styles.card}>
+      <View style={styles.stepIndicator}>
+        <Text style={styles.stepText}>Étape 3/3</Text>
+      </View>
+
+      <Text style={styles.title}>Récapitulatif de la réservation</Text>
+      <Text style={styles.subtitle}>Vérifiez les informations avant de soumettre</Text>
+
+      <View style={styles.summaryCard}>
+        <View style={styles.summaryHeader}>
+          <Ionicons name="water" size={24} color="#1FA739" />
+          <Text style={styles.summaryTitle}>Réservation Piscine</Text>
+        </View>
+
+        {reserveForSelf && (
+          <View style={styles.participantItem}>
+            <Ionicons name="person" size={16} color="#1FA739" />
+            <Text style={styles.participantText}>
+              {selfInfo.prenom} {selfInfo.nom}
+            </Text>
+          </View>
+        )}
+
+        {addSpouses &&
+          spouses
+            .filter((sp) => sp.nom.trim() && sp.prenom.trim())
+            .map((spouse, index) => (
+              <View key={index} style={styles.participantItem}>
+                <Ionicons name="people" size={16} color="#1FA739" />
+                <Text style={styles.participantText}>
+                  {spouse.prenom} {spouse.nom}
+                </Text>
+              </View>
             ))}
+
+        {addChildren &&
+          !isRetraite &&
+          children
+            .filter((ch) => ch.nom.trim() && ch.prenom.trim())
+            .map((child, index) => (
+              <View key={index} style={styles.participantItem}>
+                <Ionicons name="school" size={16} color="#1FA739" />
+                <Text style={styles.participantText}>
+                  {child.prenom} {child.nom} ({child.sexe === "M" ? "Garçon" : "Fille"},{" "}
+                  {child.dateNaissance.toLocaleDateString("fr-FR")})
+                </Text>
           </View>
         ))}
-
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
-          <TouchableOpacity style={[styles.secondaryButton, { flex: 0.48 }]} onPress={prevStep}>
-            <Text style={styles.buttonText}>Précédent</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, { flex: 0.48 }]} onPress={nextStep}>
-            <Text style={styles.buttonText}>Suivant</Text>
-          </TouchableOpacity>
-        </View>
       </View>
-    );
-  };
 
-  const renderRecap = () => (
-    <View style={styles.card}>
-      <Text style={styles.title}>Récapitulatif</Text>
-      {mainPerson.reserveForSelf && (
-        <Text style={styles.recapText}>
-          Réservation pour moi-même : {mainPerson.name} ({mainPerson.gender === 'H' ? 'Homme' : 'Femme'}) - {mainPerson.isActiveEmployee ? 'Employé Actif' : 'Non Employé Actif'}
+      <View style={styles.noteContainer}>
+        <Ionicons name="information-circle" size={20} color="#1FA739" />
+        <Text style={styles.noteText}>
+          Cette demande sera soumise à validation administrative. Les détails de paiement seront communiqués après
+          acceptation.
         </Text>
-      )}
-      {addSpouses && spouses.length > 0 && (
-        <>
-          <Text style={[styles.label, { marginTop: 8 }]}>Conjoints :</Text>
-          {spouses.map((sp, idx) => (
-            <Text key={idx} style={styles.recapText}>
-              {sp.name} - {sp.isEmployee ? 'Employé OCP' : 'Non Employé OCP'}
-            </Text>
-          ))}
-        </>
-      )}
-      {addChildren && children.length > 0 && (
-        <>
-          <Text style={[styles.label, { marginTop: 8 }]}>Enfants :</Text>
-          {children.map((ch, idx) => (
-            <Text key={idx} style={styles.recapText}>{ch.name}</Text>
-          ))}
-        </>
-      )}
-      <Text style={[styles.label, { marginTop: 10 }]}>Créneaux choisis :</Text>
-      {Object.entries(groupSlots).map(([group, slot], idx) => (
-        <Text key={idx} style={styles.recapText}>
-          {group} : {slot}
-        </Text>
-      ))}
+      </View>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
-        <TouchableOpacity style={[styles.secondaryButton, { flex: 0.48 }]} onPress={prevStep}>
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(1)}>
+          <Ionicons name="arrow-back" size={20} color="white" />
           <Text style={styles.buttonText}>Précédent</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, { flex: 0.48 }]} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Confirmer</Text>
-        </TouchableOpacity>
-      </View>
+        <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Soumettre</Text>
+          <Ionicons name="checkmark" size={20} color="white" />
+      </TouchableOpacity>
     </View>
-  );
+    </ScrollView>
+  )
 
   return (
-    <ImageBackground
-      source={require('../../assets/images/background_app.jpg')}
-      resizeMode="cover"
-      style={{ flex: 1 }}
-    >
-      <LinearGradient colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']} style={{ flex: 1 }}>
-        <SafeAreaView style={{ flex: 1, padding: 16 }}>
+    <ImageBackground source={require("../../assets/images/background_app.jpg")} style={{ flex: 1 }}>
+      <LinearGradient colors={["rgba(21, 20, 20, 0.94)", "rgba(43, 41, 41, 0.86)"]} style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }}>
           <StatusBar barStyle="light-content" />
-          <View style={styles.header}>
-            <TouchableOpacity onPress={router.back} style={styles.headerIcon}>
-              <Ionicons name="arrow-back" size={26} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Réservation Piscine</Text>
-          </View>
 
-          <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-            {currentStep === 0 && renderInitialChoice()}
-            {currentStep === 1 && renderForm()}
-            {currentStep === 2 && renderSlotSelection()}
-            {currentStep === 3 && renderRecap()}
-          </ScrollView>
+         <View style={styles.header}>
+  <TouchableOpacity onPress={router.back} style={styles.headerIcon}>
+    <Ionicons name="arrow-back" size={26} color="white" />
+  </TouchableOpacity>
+  <Text style={styles.headerTitle}>Réservation Piscine</Text>
+            <View style={styles.headerRight}>
+              <Ionicons name="water" size={24} color="#1FA739" />
+  </View>
+</View>
+
+          <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
+            {step === 0 && renderStep0()}
+            {step === 1 && renderStep1()}
+            {step === 2 && renderStep2()}
+</ScrollView>
         </SafeAreaView>
-      </LinearGradient>
-    </ImageBackground>
-  );
+        </LinearGradient>
+      </ImageBackground>
+  )
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: 'rgba(255, 255, 255, 0.12)', borderRadius: 16, padding: 20, marginVertical: 16 },
-  title: { color: 'white', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 },
-  label: { color: 'white', fontSize: 15, marginBottom: 6 },
-  input: { backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 10, color: 'white', padding: 10, marginBottom: 10 },
-  option: { backgroundColor: 'rgba(255,255,255,0.1)', padding: 12, borderRadius: 10, marginVertical: 4 },
-  selectedOption: { backgroundColor: '#32CD32' },
-  optionText: { color: 'white', fontSize: 16 },
-  checkbox: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },
-  button: {
-    backgroundColor: '#32CD32',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  secondaryButton: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#32CD32',
-    marginVertical: 10,
-  },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 12,
-    zIndex: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.15)",
+    backgroundColor: "rgba(0,0,0,0.4)"
   },
   headerIcon: {
-    marginRight: 12,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.1)",
   },
   headerTitle: {
-    color: 'white',
+    color: "white",
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "700",
+    flex: 1,
+    textAlign: "center",
+    letterSpacing: 0.5,
+    fontFamily: "System",
   },
-  buttonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 },
-  recapText: { color: '#d1d5db', fontSize: 16, marginVertical: 2, textAlign: 'center' },
-});
+  headerRight: {
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "rgba(50, 205, 50, 0.2)",
+  },
+  card: {
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    borderRadius: 24,
+    padding: 28,
+    marginVertical: 12,
+   
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  stepIndicator: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  stepText: {
+    color: "#1FA739",
+    fontSize: 15,
+    fontWeight: "700",
+    backgroundColor: "rgba(50, 205, 50, 0.15)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(50, 205, 50, 0.3)",
+    letterSpacing: 0.5,
+    fontFamily: "System",
+  },
+  title: {
+    color: "white",
+    fontSize: 28,
+    fontWeight: "800",
+    textAlign: "center",
+    marginBottom: 12,
+    letterSpacing: 0.5,
+    fontFamily: "System",
+  },
+  subtitle: {
+    color: "#e5e7eb",
+    fontSize: 17,
+    textAlign: "center",
+    marginBottom: 28,
+    lineHeight: 24,
+    opacity: 0.9,
+    fontFamily: "System",
+  },
+  roleIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(50, 205, 50, 0.08)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "rgba(50, 205, 50, 0.25)",
+  
+  },
+  roleText: {
+    color: "#1FA739",
+    fontSize: 15,
+    fontWeight: "600",
+    marginLeft: 12,
+    letterSpacing: 0.3,
+    fontFamily: "System",
+  },
+  optionsContainer: {
+    marginBottom: 28,
+    gap: 16,
+  },
+  optionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.1)",
+   
+  },
+  selectedCard: {
+    borderColor: "#1FA739",
+    backgroundColor: "rgba(50, 205, 50, 0.08)",
+   
+  },
+  optionText: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "600",
+    flex: 1,
+    marginLeft: 16,
+    letterSpacing: 0.3,
+    fontFamily: "System",
+  },
+  selectedText: {
+    color: "#1FA739",
+    fontWeight: "700",
+  },
+  infoCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "rgba(255, 149, 0, 0.08)",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 149, 0, 0.25)",
+  
+  },
+  infoText: {
+    color: "#f5780b",
+    fontSize: 15,
+    marginLeft: 12,
+    flex: 1,
+    lineHeight: 22,
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  sectionCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.1)",
+  },
+  sectionTitle: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "700",
+    marginLeft: 12,
+    flex: 1,
+    letterSpacing: 0.3,
+    fontFamily: "System",
+  },
+  addButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: "rgba(50, 205, 50, 0.1)",
+  },
+  memberCard: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  memberHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  memberTitle: {
+    color: "#1FA739",
+    fontSize: 18,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+    fontFamily: "System",
+  },
+  inputRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+    gap: 12,
+  },
+  inputHalf: {
+    flex: 1,
+  },
+  label: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "600",
+    marginBottom: 8,
+    letterSpacing: 0.3,
+    fontFamily: "System",
+  },
+  input: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 14,
+    color: "white",
+    padding: 16,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    
+    fontFamily: "System",
+  },
+  genderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+    gap: 12,
+  },
+  genderOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+  },
+  selectedGender: {
+    backgroundColor: "#1FA739",
+    borderColor: "#1FA739",
+    shadowColor: "#32CD32",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  genderText: {
+    color: "#ccc",
+    marginLeft: 10,
+    fontSize: 15,
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  selectedGenderText: {
+    color: "white",
+    fontWeight: "700",
+    fontFamily: "System",
+  },
+  dateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+   
+  },
+  dateText: {
+    color: "white",
+    marginLeft: 12,
+    fontSize: 16,
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  warningContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 149, 0, 0.15)",
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 149, 0, 0.3)",
+  },
+  warningText: {
+    color: "#f5780b",
+    fontSize: 13,
+    marginLeft: 8,
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  summaryCard: {
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+   
+  },
+  summaryHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(50, 205, 50, 0.3)",
+  },
+  summaryTitle: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "700",
+    marginLeft: 12,
+    letterSpacing: 0.3,
+    fontFamily: "System",
+  },
+  participantItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.08)",
+  },
+  participantText: {
+    color: "#e5e7eb",
+    fontSize: 15,
+    flex: 1,
+    marginLeft: 12,
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  priceText: {
+    color: "#1FA739",
+    fontSize: 16,
+    fontWeight: "700",
+    fontFamily: "System",
+  },
+  totalContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 2,
+    borderTopColor: "#1FA739",
+    backgroundColor: "rgba(50, 205, 50, 0.05)",
+    borderRadius: 12,
+    padding: 16,
+  },
+  totalLabel: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+    fontFamily: "System",
+  },
+  totalAmount: {
+    color: "#1FA739",
+    fontSize: 28,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    fontFamily: "System",
+  },
+  noteContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "rgba(50, 205, 50, 0.08)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 28,
+    borderWidth: 1,
+    borderColor: "rgba(50, 205, 50, 0.2)",
+  },
+  noteText: {
+    color: "#e5e7eb",
+    fontSize: 15,
+    marginLeft: 12,
+    flex: 1,
+    lineHeight: 22,
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    gap: 16,
+  },
+  primaryButton: {
+    backgroundColor: "#1FA739",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 18,
+    borderRadius: 16,
+    flex: 1,
+    shadowColor: "#32CD32",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  secondaryButton: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 18,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "rgba(50, 205, 50, 0.5)",
+    flex: 1,
+   
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "700",
+    marginHorizontal: 10,
+    letterSpacing: 0.5,
+    fontFamily: "System",
+  },
+})

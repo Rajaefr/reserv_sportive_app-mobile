@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
+"use client"
+import { Ionicons } from "@expo/vector-icons"
+import { LinearGradient } from "expo-linear-gradient"
+import { useLocalSearchParams, useRouter } from "expo-router"
 import {
   Dimensions,
   ImageBackground,
@@ -11,254 +11,408 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native"
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get("window")
 
+// 🔁 Uniquement Piscine & Workout
 const activityDetails = {
   piscine: {
-    title: 'Piscine',
-    image: require('../../assets/images/piscine.jpg'),
+    title: "Piscine Chauffée",
+    image: require("../../assets/images/piscine.jpg"),
+    icon: "water",
+    color: "#1FA739",
+    gradient: ["rgba(31, 167, 57, 0.8)", "rgba(34, 197, 94, 0.6)"],
     description:
-      "Profitez de notre piscine chauffée pour vos séances de natation et d’aquagym. Réservation obligatoire avec créneau limité à 1h30 par utilisateur. Bonnet de bain et douche avant accès requis.",
+      "Profitez de notre piscine chauffée dans un environnement moderne et sécurisé. Accès réservé aux collaborateurs, retraités, conjoints et enfants de 5 à 12 ans. L'affectation à un groupe se fait sur place selon la disponibilité.",
     rules: [
-      'Réservation obligatoire (1h30 maximum par session)',
-      'Port du bonnet de bain obligatoire',
-      'Douche avant l\'entrée dans la piscine',
-      'Nombre de places limité par créneau',
+      "Réservation préalable obligatoire via l'application",
+      "Enfants admis de 5 à 12 ans (maximum 5 enfants par réservation)",
+      "Jusqu'à 2 conjoints autorisés par réservation",
+      "Affectation à un groupe effectuée par l'administration lors de votre présence",
+      "Respect des horaires de réservation",
     ],
     canReserve: true,
-  },
-  tennis: {
-    title: 'Tennis',
-    image: require('../../assets/images/tennis.jpg'),
-    description:
-      "Réservez votre court de tennis et profitez d'un moment sportif en plein air ou en salle selon la disponibilité. Prêt de raquettes possible sur demande.",
-    rules: [
-      'Réservation obligatoire',
-      'Respect des horaires',
-      'Prévenir en cas d\'annulation',
-    ],
-    canReserve: true,
-  },
-  basketball: {
-    title: 'Basketball',
-    image: require('../../assets/images/basketball.jpg'),
-    description: "Matchs amicaux et entraînements ouverts aux membres inscrits.",
-    rules: [
-      'Réservation recommandée',
-      'Respect du matériel',
-      'Tenue sportive obligatoire',
-    ],
-    canReserve: false,
-  },
-  football: {
-    title: 'Football',
-    image: require('../../assets/images/football.jpg'),
-    description: "Participez aux sessions de minifoot ou tournois du week-end.",
-    rules: [
-      'Réservation nécessaire pour les matchs organisés',
-      'Respect des équipes et des horaires',
-    ],
-    canReserve: false,
   },
   workout: {
-    title: 'Workout Salle',
-    image: require('../../assets/images/workout.jpg'),
-    description: "Accès libre à la salle de musculation et aux équipements de fitness.",
+    title: "Salle de Sport",
+    image: require("../../assets/images/workout.jpg"),
+    icon: "barbell",
+    color: "#f5780b",
+    gradient: ["rgba(245, 120, 11, 0.8)", "rgba(217, 119, 6, 0.6)"],
+    description:
+      "Accédez à notre salle de sport moderne avec équipements professionnels. Réservation par code de discipline selon votre profil et vos préférences. Encadrement professionnel disponible.",
     rules: [
-      'Port d’une serviette obligatoire',
-      'Nettoyage du matériel après utilisation',
-      'Respect du silence pendant les séances',
+      "Réservation via code de discipline (ex: C001-1, C058-2)",
+      "Chaque code correspond à une salle ou activité spécifique",
+      "Montant à payer selon le code de discipline choisi",
+      "Paiement validé par l'administration sur place",
+      "Respect des créneaux horaires",
     ],
     canReserve: true,
   },
-  lancer: {
-    title: 'Lancer du poids',
-    image: require('../../assets/images/lancer.jpeg'),
-    description: "Séances techniques de lancer pour tous niveaux, sur terrain dédié.",
-    rules: [
-      'Surveillance obligatoire pendant l’activité',
-      'Respect des consignes de sécurité',
-    ],
-    canReserve: false,
-  },
-};
-
+}
 
 export default function ActivityDetail() {
-  const { id } = useLocalSearchParams();
-  const router = useRouter();
-
-  const activityId = Array.isArray(id) ? id[0] : id;
-  const activity = activityDetails[activityId as keyof typeof activityDetails];
+  const { id } = useLocalSearchParams()
+  const router = useRouter()
+  const activityId = Array.isArray(id) ? id[0] : id
+  const activity = activityDetails[activityId as keyof typeof activityDetails]
 
   if (!activity) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.notFound}>Activité non trouvée.</Text>
+      <View style={styles.container}>
+        <LinearGradient colors={["rgba(21, 20, 20, 0.94)", "rgba(43, 41, 41, 0.86)"]} style={styles.gradient}>
+          <View style={styles.center}>
+            <Ionicons name="alert-circle-outline" size={64} color="rgba(255, 255, 255, 0.3)" />
+            <Text style={styles.notFound}>Activité non trouvée</Text>
+            <TouchableOpacity onPress={router.back} style={styles.backToHomeButton}>
+              <LinearGradient colors={["#1FA739", "#22C55E"]} style={styles.backToHomeGradient}>
+                <Text style={styles.backToHomeText}>Retour</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
       </View>
-    );
+    )
   }
 
   const handleReservation = () => {
-    if (activityId === 'piscine') {
-      router.push('/reservation/piscine');
-    } else if (activityId === 'workout') {
-      router.push('/reservation/workout');
-    } else {
-      alert(`La réservation n'est pas disponible pour ${activity.title}.`);
+    if (activityId === "piscine") {
+      router.push("/reservation/piscine")
+    } else if (activityId === "workout") {
+      router.push("/reservation/workout")
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#111827" />
-
-      <ImageBackground
-        source={require('../../assets/images/background_app.jpg')}
-        resizeMode="cover"
-        style={styles.background}
-      >
-        <LinearGradient
-          colors={['rgba(34,34,39,0.45)', 'rgba(147,148,150,0.49)']}
-          style={styles.gradient}
-        >
-          {/* Wrapper pour l'image avec borderRadius */}
-          <View style={styles.imageHeaderContainer}>
-            <ImageBackground
-              source={activity.image}
-              style={styles.imageHeader}
-              resizeMode="cover"
+      <LinearGradient colors={["rgba(21, 20, 20, 0.94)", "rgba(43, 41, 41, 0.86)"]} style={styles.gradient}>
+        {/* Header avec image */}
+        <View style={styles.headerContainer}>
+          <ImageBackground source={activity.image} style={styles.headerImage} resizeMode="cover">
+            <LinearGradient
+              colors={["rgba(0, 0, 0, 0.3)", "rgba(0, 0, 0, 0.5)", "rgba(0, 0, 0, 0.8)"]}
+              style={styles.headerOverlay}
             >
-              <LinearGradient
-                colors={['rgba(255,255,255,0.3)', 'rgba(17, 24, 39, 0.76)']}
-                style={styles.imageOverlay}
-              >
-                <TouchableOpacity onPress={router.back} style={styles.backButton}>
-                  <Ionicons name="arrow-back" size={26} color="white" />
-                </TouchableOpacity>
-                <Text style={styles.title}>{activity.title}</Text>
-              </LinearGradient>
-            </ImageBackground>
+              <TouchableOpacity onPress={router.back} style={styles.backButton} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={["rgba(255, 255, 255, 0.15)", "rgba(255, 255, 255, 0.08)"]}
+                  style={styles.backButtonGradient}
+                >
+                  <Ionicons name="arrow-back" size={24} color="white" />
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <View style={styles.headerContent}>
+                <LinearGradient colors={activity.gradient as any} style={styles.headerIcon}>
+                  <Ionicons name={activity.icon as any} size={32} color="white" />
+                </LinearGradient>
+                <Text style={styles.headerTitle}>{activity.title}</Text>
+                <Text style={styles.headerSubtitle}>Découvrez tous les détails</Text>
+              </View>
+            </LinearGradient>
+          </ImageBackground>
+        </View>
+
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} bounces={true}>
+          {/* Description */}
+          <View style={styles.section}>
+            <LinearGradient
+              colors={["rgba(255, 255, 255, 0.15)", "rgba(255, 255, 255, 0.08)"]}
+              style={styles.descriptionCard}
+            >
+              <View style={styles.descriptionHeader}>
+                <Ionicons name="information-circle" size={24} color={activity.color} />
+                <Text style={styles.sectionTitle}>Description</Text>
+              </View>
+              <Text style={styles.description}>{activity.description}</Text>
+            </LinearGradient>
           </View>
 
-          {/* Contenu scrollable */}
-          <ScrollView contentContainerStyle={styles.content}>
-            <Text style={styles.description}>{activity.description}</Text>
+          {/* Règles */}
+          <View style={styles.section}>
+            <View style={styles.rulesHeader}>
+              <Ionicons name="shield-checkmark" size={24} color="#1FA739" />
+              <Text style={styles.sectionTitle}>Règles à respecter</Text>
+            </View>
+            <View style={styles.rulesContainer}>
+              {activity.rules.map((rule, index) => (
+                <LinearGradient
+                  key={index}
+                  colors={["rgba(255, 255, 255, 0.12)", "rgba(255, 255, 255, 0.06)"]}
+                  style={styles.ruleItem}
+                >
+                  <View style={styles.ruleBullet}>
+                    <LinearGradient colors={["#1FA739", "#22C55E"]} style={styles.ruleBulletGradient}>
+                      <Ionicons name="checkmark" size={14} color="white" />
+                    </LinearGradient>
+                  </View>
+                  <Text style={styles.ruleText}>{rule}</Text>
+                </LinearGradient>
+              ))}
+            </View>
+          </View>
 
-            <Text style={styles.sectionTitle}>Règles à respecter :</Text>
-            {activity.rules.map((rule, index) => (
-              <Text key={index} style={styles.rule}>
-                • {rule}
+          {/* Informations supplémentaires */}
+          <View style={styles.section}>
+            <LinearGradient colors={["rgba(245, 120, 11, 0.15)", "rgba(245, 120, 11, 0.08)"]} style={styles.infoCard}>
+              <View style={styles.infoHeader}>
+                <Ionicons name="alert-circle" size={20} color="#f5780b" />
+                <Text style={styles.infoTitle}>Information importante</Text>
+              </View>
+              <Text style={styles.infoText}>
+                Toute réservation doit être confirmée au moins 2 heures avant le créneau souhaité. Les annulations sont
+                possibles jusqu'à 1 heure avant le début de l'activité.
               </Text>
-            ))}
+            </LinearGradient>
+          </View>
 
-            {activity.canReserve && (
-              <TouchableOpacity style={styles.button} onPress={handleReservation}>
-                <Text style={styles.buttonText}>Réserver maintenant</Text>
+          {/* Bouton de réservation */}
+          {activity.canReserve && (
+            <View style={styles.reservationSection}>
+              <TouchableOpacity style={styles.reservationButton} onPress={handleReservation} activeOpacity={0.85}>
+                <LinearGradient colors={["#1FA739", "#22C55E"]} style={styles.reservationGradient}>
+                  <Ionicons name="calendar" size={24} color="white" />
+                  <Text style={styles.reservationText}>Réserver maintenant</Text>
+                  <Ionicons name="arrow-forward" size={20} color="white" />
+                </LinearGradient>
               </TouchableOpacity>
-            )}
-          </ScrollView>
-        </LinearGradient>
-      </ImageBackground>
+            </View>
+          )}
+        </ScrollView>
+      </LinearGradient>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#111827' },
-
-  background: {
+  container: {
     flex: 1,
+    backgroundColor: "#111827",
   },
-
   gradient: {
     flex: 1,
   },
-
-  // Conteneur qui gère le borderRadius + overflow pour l'image
-  imageHeaderContainer: {
-    borderRadius: 22,
-    overflow: 'hidden',
-  
+  // Header
+  headerContainer: {
+    height: height * 0.4,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    overflow: "hidden",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
-
-  imageHeader: {
-    height: height / 3.2,
-    width: '100%',
-    justifyContent: 'flex-end',
-  },
-
-  imageOverlay: {
+  headerImage: {
     flex: 1,
-    justifyContent: 'flex-end',
+    width: "100%",
+  },
+  headerOverlay: {
+    flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 50,
     paddingBottom: 30,
+    justifyContent: "space-between",
   },
-
   backButton: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
+    alignSelf: "flex-start",
   },
-
-  title: {
-    fontSize: 30,
-    color: 'white',
-    fontWeight: 'bold',
+  backButtonGradient: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
-
+  headerContent: {
+    alignItems: "flex-start",
+  },
+  headerIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+  },
+  headerTitle: {
+    fontSize: 32,
+    color: "white",
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    fontFamily: "System",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.7)",
+    fontWeight: "500",
+    letterSpacing: 0.2,
+  },
+  // Contenu
   content: {
     paddingHorizontal: 20,
+    paddingTop: 24,
     paddingBottom: 40,
-    paddingTop: 28,
   },
-
-  description: {
-    color: '#d1d5db',
-    fontSize: 17,
-    marginBottom: 22,
-    marginTop: 30,
-    lineHeight: 24,
+  section: {
+    marginBottom: 24,
   },
-
   sectionTitle: {
-    color: 'white',
+    color: "white",
     fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 10,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+    fontFamily: "System",
   },
-
-  rule: {
-    color: '#d1d5db',
-    fontSize: 17,
-    marginBottom: 6,
+  // Description
+  descriptionCard: {
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
-
-  button: {
-    backgroundColor: '#32CD32',
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 50,
-    marginBottom: 20,
+  descriptionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 16,
   },
-
-  buttonText: {
-    color: 'white',
+  description: {
+    color: "rgba(255, 255, 255, 0.8)",
     fontSize: 16,
-    fontWeight: '600',
+    lineHeight: 24,
+    fontWeight: "500",
   },
-
+  // Règles
+  rulesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 16,
+  },
+  rulesContainer: {
+    gap: 12,
+  },
+  ruleItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+  },
+  ruleBullet: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  ruleBulletGradient: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ruleText: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: "500",
+    flex: 1,
+  },
+  // Information card
+  infoCard: {
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "rgba(245, 120, 11, 0.3)",
+  },
+  infoHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  infoTitle: {
+    color: "#f5780b",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "System",
+  },
+  infoText: {
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "500",
+  },
+  // Réservation
+  reservationSection: {
+    marginTop: 16,
+  },
+  reservationButton: {
+    borderRadius: 20,
+    overflow: "hidden",
+    elevation: 8,
+    shadowColor: "#1FA739",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  reservationGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    gap: 12,
+  },
+  reservationText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    fontFamily: "System",
+  },
+  // États d'erreur
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
   },
-
   notFound: {
-    color: 'white',
-    fontSize: 18,
+    color: "white",
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 16,
+    marginBottom: 24,
+    textAlign: "center",
+    fontFamily: "System",
   },
-});
+  backToHomeButton: {
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  backToHomeGradient: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backToHomeText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "System",
+  },
+})

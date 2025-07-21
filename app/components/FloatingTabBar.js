@@ -48,7 +48,7 @@ const FloatingTabBar = () => {
               <IconComponent
                 name={tab.icon}
                 size={24}
-                color={isActive ? '#32CD32' : '#FFFFFF'}
+                color={isActive ? '#1FA739' : '#FFFFFF'}
               />
               {isActive && <View style={styles.activeIndicator} />}
             </TouchableOpacity>
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     bottom: -4,
     height: 3,
     width: 24,
-    backgroundColor: '#32CD32',
+    backgroundColor: '#1FA739',
     borderRadius: 2,
   },
 });
