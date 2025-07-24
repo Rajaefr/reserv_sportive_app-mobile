@@ -1,7 +1,9 @@
 "use client"
 
 import { Ionicons } from "@expo/vector-icons"
+import * as FileSystem from "expo-file-system"
 import { LinearGradient } from "expo-linear-gradient"
+import * as Print from "expo-print"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { ImageBackground, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 
@@ -205,22 +207,101 @@ export default function ReservationDetails() {
               </View>
             </View>
 
-            {/* Action Card */}
             {item.status === "validé" && (
-              <View style={styles.actionCard}>
-                <View style={styles.actionHeader}>
-                  <Ionicons name="calendar" size={24} color="#1FA739" />
-                  <Text style={styles.actionTitle}>Prochaines étapes</Text>
-                </View>
-                <Text style={styles.actionText}>
-                  Votre réservation est confirmée ! Présentez-vous à l'accueil le jour prévu avec une pièce d'identité.
-                </Text>
-                <TouchableOpacity style={styles.actionButton}>
-                  <Ionicons name="qr-code" size={20} color="white" />
-                  <Text style={styles.actionButtonText}>Générer QR Code</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+  <View style={styles.actionCard}>
+    <View style={styles.actionHeader}>
+      <Ionicons name="calendar" size={24} color="#1FA739" />
+      <Text style={styles.actionTitle}>Prochaines étapes</Text>
+    </View>
+    <Text style={styles.actionText}>
+      Votre réservation est confirmée ! Présentez-vous à l'accueil le jour prévu avec une pièce d'identité.
+    </Text>
+
+    <TouchableOpacity
+  style={styles.actionButton}
+  onPress={async () => {
+    const logoBase64 = await FileSystem.readAsStringAsync(
+      require("../../assets/images/logo.png"),
+      { encoding: FileSystem.EncodingType.Base64 }
+    );
+    
+    const html = `
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 40px;
+              background-color: #fff;
+              color: #000;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+            }
+            .logo {
+              width: 100px;
+              margin-bottom: 10px;
+            }
+            h1 {
+              font-size: 20px;
+              text-transform: uppercase;
+              font-weight: bold;
+              margin-bottom: 10px;
+            }
+            .section {
+              border: 1px solid #000;
+              padding: 20px;
+              margin-top: 20px;
+            }
+            .row {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 10px;
+            }
+            .label {
+              font-weight: bold;
+            }
+            .footer {
+              margin-top: 40px;
+              font-size: 12px;
+              text-align: center;
+              color: #444;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <img src="data:image/png;base64,${logoBase64}" class="logo" />
+            <h1>Reçu de réservation</h1>
+          </div>
+
+          <div class="section">
+            <div class="row"><span class="label">Activité :</span> <span>${item.activity}</span></div>
+            <div class="row"><span class="label">Date prévue :</span> <span>${item.date}</span></div>
+            <div class="row"><span class="label">Soumise le :</span> <span>${item.submittedDate}</span></div>
+            <div class="row"><span class="label">Statut :</span> <span>${item.status.toUpperCase()}</span></div>
+            <div class="row"><span class="label">Participants :</span> <span>${item.members.join(", ")}</span></div>
+          </div>
+
+          <div class="footer">
+            Merci pour votre confiance. Présentez ce reçu le jour de l'activité avec une pièce d'identité.
+          </div>
+        </body>
+      </html>
+    `;
+
+    await Print.printAsync({ html });
+  }}
+>
+  <Ionicons name="document-text" size={20} color="white" />
+  <Text style={styles.actionButtonText}>Générer Reçu PDF</Text>
+</TouchableOpacity>
+
+  </View>
+)}
+
 
             {item.status === "en attente" && (
               <View style={styles.actionCard}>
