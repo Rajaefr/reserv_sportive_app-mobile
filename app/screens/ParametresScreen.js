@@ -12,10 +12,10 @@ import Header from "../components/Header"
 export default function Parametres() {
   const router = useRouter()
   const [userInfo, setUserInfo] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+212 612345678",
-    matricule: "A789456",
+    name: "Rajaa Farid",
+    email: "rajaafarid@gmail.com",
+    phone: "+212 687953410",
+    matricule: "A2802",
   })
   const [editField, setEditField] = useState(null)
   const [tempValue, setTempValue] = useState("")
