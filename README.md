@@ -5,8 +5,7 @@ Application mobile React Native pour le système de réservations sportives OCP 
 ## Applications Liées
 
 - **Application Web Admin** : [OCP Admin Dashboard](https://github.com/Rajaefr/resv_sportt_webApp)
-- **Backend API** : Partagé avec l'application web
-
+-
 ## Technologies Utilisées
 
 ### Framework Mobile
